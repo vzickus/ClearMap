@@ -3,6 +3,9 @@
 Template to run the processing pipeline
 """
 
+#This is needed if ClearMap isn't in the Python modules folder
+runfile('/home/yourname/ClearMap/docs/conf.py')
+
 #load the parameters:
 execfile('/home/yourname/experiment/parameter_file_sampleID.py')
 
@@ -10,17 +13,17 @@ execfile('/home/yourname/experiment/parameter_file_sampleID.py')
 #resampling operations:
 #######################
 #resampling for the correction of stage movements during the acquisition between channels:
-resampleData(**CorrectionResamplingParameterCfos);
-resampleData(**CorrectionResamplingParameterAutoFluo);
+#resampleData(**CorrectionResamplingParameterCfos);
+#resampleData(**CorrectionResamplingParameterAutoFluo);
 
 #Downsampling for alignment to the Atlas:
-resampleData(**RegistrationResamplingParameter);
+#resampleData(**RegistrationResamplingParameter);
 
 
 #Alignment operations:
 ######################
 #correction between channels:
-resultDirectory  = alignData(**CorrectionAlignmentParameter);
+#resultDirectory  = alignData(**CorrectionAlignmentParameter);
 
 #alignment to the Atlas:
 resultDirectory  = alignData(**RegistrationAlignmentParameter);
@@ -40,7 +43,7 @@ points, intensities = io.readPoints(ImageProcessingParameter["sink"]);
 #row = (1,1) : peak intensity from the DoG filtered data
 #row = (2,2) : peak intensity from the background subtracted data
 #row = (3,3) : voxel size from the watershed
-points, intensities = thresholdPoints(points, intensities, threshold = (20, 900), row = (3,3));
+points, intensities = thresholdPoints(points, intensities, threshold = (150, 2000), row = (2,2));
 io.writePoints(FilteredCellsFile, (points, intensities));
 
 
@@ -56,7 +59,7 @@ io.writePoints(FilteredCellsFile, (points, intensities));
 #############################
 points = io.readPoints(CorrectionResamplingPointsParameter["pointSource"]);
 points = resamplePoints(**CorrectionResamplingPointsParameter);
-points = transformPoints(points, transformDirectory = CorrectionAlignmentParameter["resultDirectory"], indices = False, resultDirectory = None);
+#points = transformPoints(points, transformDirectory = CorrectionAlignmentParameter["resultDirectory"], indices = False, resultDirectory = None);
 CorrectionResamplingPointsInverseParameter["pointSource"] = points;
 points = resamplePointsInverse(**CorrectionResamplingPointsInverseParameter);
 RegistrationResamplingPointParameter["pointSource"] = points;

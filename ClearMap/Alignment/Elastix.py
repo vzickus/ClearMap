@@ -428,7 +428,7 @@ def rescaleSizeAndSpacing(size, spacing, scale):
 ### Elastix Runs
 ##############################################################################
 
-def alignData(fixedImage, movingImage, affineParameterFile, bSplineParameterFile = None, resultDirectory = None):
+def alignData(fixedImage, movingImage, affineParameterFile, bSplineParameterFile = None, resultDirectory = None, movingPoints = None, fixedPoints = None):
     """Align images using elastix, estimates a transformation :math:`T:` fixed image :math:`\\rightarrow` moving image.
     
     Arguments:
@@ -437,6 +437,8 @@ def alignData(fixedImage, movingImage, affineParameterFile, bSplineParameterFile
         affineParameterFile (str or None): elastix parameter file for the primary affine transformation
         bSplineParameterFile (str or None): elastix parameter file for the secondary non-linear transformation
         resultDirectory (str or None): elastic result directory
+        movingpoints (str or None): The set of BigWarp landmarks on the atlas 
+        fixedpoints (str or None): The set of BigWarp landmarks on Autofluo_resampled
         
     Returns:
         str: path to elastix result directory
@@ -453,12 +455,12 @@ def alignData(fixedImage, movingImage, affineParameterFile, bSplineParameterFile
     
     
     if bSplineParameterFile is None:
-        cmd = ElastixBinary + ' -threads 16 -m ' + movingImage + ' -f ' + fixedImage + ' -p ' + affineParameterFile + ' -out ' + resultDirectory;
+        cmd = ElastixBinary + ' -threads 8 -m ' + movingImage + ' -f ' + fixedImage + ' -p ' + affineParameterFile + ' -out ' + resultDirectory;
     elif affineParameterFile is None:
-        cmd = ElastixBinary + ' -threads 16 -m ' + movingImage + ' -f ' + fixedImage + ' -p ' + bSplineParameterFile + ' -out ' + resultDirectory;
+        cmd = ElastixBinary + ' -threads 8 -m ' + movingImage + ' -f ' + fixedImage + ' -p ' + bSplineParameterFile + ' -out ' + resultDirectory;
     else:
-        cmd = ElastixBinary + ' -threads 16 -m ' + movingImage + ' -f ' + fixedImage + ' -p ' + affineParameterFile + ' -p ' + bSplineParameterFile + ' -out ' + resultDirectory;
-        #$ELASTIX -threads 16 -m $MOVINGIMAGE -f $FIXEDIMAGE -fMask $FIXEDIMAGE_MASK -p  $AFFINEPARFILE -p $BSPLINEPARFILE -out $ELASTIX_OUTPUT_DIR
+        cmd = ElastixBinary + ' -threads 8 -m ' + movingImage + ' -f ' + fixedImage +  ' -p ' + bSplineParameterFile + ' -out ' + resultDirectory + ' -mp ' + movingPoints + ' -fp ' + fixedPoints;
+         #$ELASTIX -threads 16 -m $MOVINGIMAGE -f $FIXEDIMAGE -fMask $FIXEDIMAGE_MASK -p  $AFFINEPARFILE -p $BSPLINEPARFILE -out $ELASTIX_OUTPUT_DIR
     
     res = os.system(cmd);
     
@@ -523,7 +525,7 @@ def transformData(source, sink = [], transformParameterFile = None, transformDir
     setPathTransformParameterFiles(transformparameterdir);
    
     #transformix -in inputImage.ext -out outputDirectory -tp TransformParameters.txt
-    cmd = TransformixBinary + ' -in ' + imgname + ' -out ' + resultdirname + ' -tp ' + transformParameterFile;
+    cmd = TransformixBinary + '-threads 8 -in ' + imgname + ' -out ' + resultdirname + ' -tp ' + transformParameterFile;
     
     res = os.system(cmd);
     
@@ -586,7 +588,7 @@ def deformationField(sink = [], transformParameterFile = None, transformDirector
     setPathTransformParameterFiles(transformparameterdir);
    
     #transformix -in inputImage.ext -out outputDirectory -tp TransformParameters.txt
-    cmd = TransformixBinary + ' -def all -out ' + resultdirname + ' -tp ' + transformParameterFile;
+    cmd = TransformixBinary + '-threads 8 -def all -out ' + resultdirname + ' -tp ' + transformParameterFile;
     
     res = os.system(cmd);
     
@@ -739,7 +741,7 @@ def transformPoints(source, sink = None, transformParameterFile = None, transfor
     setPathTransformParameterFiles(transformparameterdir);
     
     #run transformix   
-    cmd = TransformixBinary + ' -def ' + txtfile + ' -out ' + outdirname + ' -tp ' + transformparameterfile;
+    cmd = TransformixBinary + '-threads 8 -def ' + txtfile + ' -out ' + outdirname + ' -tp ' + transformparameterfile;
     res = os.system(cmd);
     
     if res != 0:

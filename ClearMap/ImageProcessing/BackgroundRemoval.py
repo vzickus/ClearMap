@@ -62,7 +62,9 @@ def removeBackground(img, removeBackgroundParameter = None, size = None, save = 
         return img;
         
     img = io.readData(img);
-    
+   
+    #CHANGED BY MORITZ 2019-02-11: Assumes that the background removal is done externally (e.g. with ImageJ's Background Reduction = Rolling Ball) or other tools
+    """
     # change type to float in order to prevent 
     dtype = img.dtype;
     img = numpy.array(img, dtype = float);
@@ -77,7 +79,7 @@ def removeBackground(img, removeBackgroundParameter = None, size = None, save = 
     
     img[img < 0] = 0;
     img = numpy.array(img, dtype = dtype);
-    
+    """ 
     if not save is None:
         writeSubStack(save, img, subStack = subStack)
 

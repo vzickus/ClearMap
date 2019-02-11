@@ -33,10 +33,10 @@ cFosFile = os.path.join(BaseDirectory, 'channel1/cfos-Z\d{4}.ome.tif');
 AutofluoFile = os.path.join(BaseDirectory, 'channel2/ref-Z\d{4}.ome.tif');
 
 #Specify the range for the cell detection. This doesn't affect the resampling and registration operations
-cFosFileRange = {'x' : all, 'y' : (180, 2560), 'z' : all};
+cFosFileRange = {'x' : all, 'y' : all, 'z' : all};
 
-#Resolution of the Raw Data (in um / pixel)
-OriginalResolution = (4.0625, 4.0625, 3);
+#Resolution of the Raw Data (in um / pixel), read from Imspector or ImageJ "Show Info". Z resolution = layer thickness when recording. 
+OriginalResolution = (3.25, 3.25, 3);
 
 #Orientation: 1,2,3 means the same orientation as the reference and atlas files.
 #Flip axis with - sign (eg. (-1,2,3) flips x). 3D Rotate by swapping numbers. (eg. (2,1,3) swaps x and y)
@@ -46,10 +46,17 @@ FinalOrientation = (1,2,3);
 AtlasResolution = (25, 25, 25);
 
 #Path to registration parameters and atlases
-PathReg        = '/home/mtllab/Documents/warping';
-AtlasFile      = os.path.join(PathReg, 'half_template_25_right_fullWD.tif');
-AnnotationFile = os.path.join(PathReg, 'annotation_25_right_fullWD.tif');
+PathReg        = BaseDirectory;
+AtlasFile      = os.path.join(PathReg, 'template_25.tif');
+AnnotationFile = os.path.join(PathReg, 'annotation_25_full.nrrd');
 
+# !!! This script assumes that the folder contains the following: 
+"""
+- Atlas file (.tif)
+- Annotation files (tif and nrrd)
+- AffineTransform + BSpline Transform (the latter needs to be the updated version, NOT the original clearmap one)
+- atlas_landmarks.txt and autofluo_landmarks.txt <-- For manual alignment. Refer to the preprocessing script for a how-to.
+"""
 
 
 ######################### Cell Detection Parameters using custom filters
@@ -62,7 +69,7 @@ ImageProcessingMethod = "SpotDetection";
 correctIlluminationParameter = {
     "flatfield"  : None,  # (True or None)  flat field intensities, if None do not correct image for illumination 
     "background" : None, # (None or array) background image as file name or array, if None background is assumed to be zero
-    "scaling"    : "Mean", # (str or None)        scale the corrected result by this factor, if 'max'/'mean' scale to keep max/mean invariant
+    "scaling"    : None, # (str or None)        scale the corrected result by this factor, if 'max'/'mean' scale to keep max/mean invariant
     "save"       : None,       # (str or None)        save the corrected image to file
     "verbose"    : True    # (bool or int)        print / plot information about this step 
 }
@@ -100,7 +107,7 @@ findIntensityParameter = {
 
 #Object volume detection. The object is painted by a watershed, until reaching the intensity threshold, based on the background subtracted image
 detectCellShapeParameter = {
-    "threshold" : 700,     # (float or None)      threshold to determine mask. Pixels below this are background if None no mask is generated
+    "threshold" : None,     # (float or None)      threshold to determine mask. Pixels below this are background if None no mask is generated
     "save"      : None,        # (str or None)        file name to save result of this operation if None dont save to file 
     "verbose"   : True      # (bool or int)        print / plot information about this step if None take intensities at the given pixels
 }
@@ -145,19 +152,20 @@ voxelizeParameter = {
 
 #Processes to use for Resampling (usually twice the number of physical processors)
 ResamplingParameter = {
-    "processes": 12 
+    "processes": 8 
 };
 
 
 #Stack Processing Parameter for cell detection
 StackProcessingParameter = {
     #max number of parallel processes. Be careful of the memory footprint of each process!
-    "processes" : 6,
+    "processes" : 8,
    
     #chunk sizes: number of planes processed at once
-    "chunkSizeMax" : 100,
-    "chunkSizeMin" : 50,
-    "chunkOverlap" : 32,
+    #Default: 100,50,32
+    "chunkSizeMax" : 40,
+    "chunkSizeMin" : 20,
+    "chunkOverlap" : 10,
 
     #optimize chunk size and number to number of processes to limit the number of cycles
     "chunkOptimization" : True,
@@ -217,6 +225,8 @@ CorrectionAlignmentParameter = {
     
     #directory of the alignment result
     "resultDirectory" :  os.path.join(BaseDirectory, 'elastix_cfos_to_auto')
+    "movingPoints" : None,
+    "fixedPoints" : None,
     }; 
   
 
@@ -234,7 +244,8 @@ RegistrationAlignmentParameter["fixedImage"]   = os.path.join(BaseDirectory, 'au
 #elastix parameter files for alignment
 RegistrationAlignmentParameter["affineParameterFile"]  = os.path.join(PathReg, 'Par0000affine.txt');
 RegistrationAlignmentParameter["bSplineParameterFile"] = os.path.join(PathReg, 'Par0000bspline.txt');
-
+RegistrationAlignmentParameter["movingPoints"] = os.path.join(BaseDirectory, 'atlas_landmarks.txt');
+RegistrationAlignmentParameter["fixedPoints"] = os.path.join(BaseDirectory, 'autofluo_landmarks.txt');
 
 
 # result files for cell coordinates (csv, vtk or ims)

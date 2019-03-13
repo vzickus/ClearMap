@@ -224,7 +224,7 @@ CorrectionAlignmentParameter = {
     "bSplineParameterFile" : None,
     
     #directory of the alignment result
-    "resultDirectory" :  os.path.join(BaseDirectory, 'elastix_cfos_to_auto')
+    "resultDirectory" :  os.path.join(BaseDirectory, 'elastix_cfos_to_auto'),
     "movingPoints" : None,
     "fixedPoints" : None,
     }; 
@@ -251,7 +251,7 @@ RegistrationAlignmentParameter["fixedPoints"] = os.path.join(BaseDirectory, 'aut
 # result files for cell coordinates (csv, vtk or ims)
 SpotDetectionParameter = {
     "source" : cFosFile,
-    "sink"   : (os.path.join(BaseDirectory, 'cells-allpoints.npy'),  os.path.join(BaseDirectory,  'intensities-allpoints.npy')),
+    "sink"   : (os.path.join(BaseDirectory, 'cells-allpoints_aligned.npy'),  os.path.join(BaseDirectory,  'intensities-allpoints_aligned.npy')),
     "detectSpotsParameter" : detectSpotsParameter
 };
 SpotDetectionParameter = joinParameter(SpotDetectionParameter, cFosFileRange)
@@ -260,7 +260,7 @@ ImageProcessingParameter = joinParameter(StackProcessingParameter, SpotDetection
 
 FilteredCellsFile = (os.path.join(BaseDirectory, 'cells.npy'), os.path.join(BaseDirectory,  'intensities.npy'));
 
-TransformedCellsFile = os.path.join(BaseDirectory, 'cells_transformed_to_Atlas.npy')
+TransformedCellsFile = os.path.join(BaseDirectory, 'cells_transformed_to_Atlas_aligned.npy')
 
 ### Transform points from Original c-Fos position to autofluorescence
 

@@ -525,7 +525,7 @@ def transformData(source, sink = [], transformParameterFile = None, transformDir
     setPathTransformParameterFiles(transformparameterdir);
    
     #transformix -in inputImage.ext -out outputDirectory -tp TransformParameters.txt
-    cmd = TransformixBinary + '-threads 8 -in ' + imgname + ' -out ' + resultdirname + ' -tp ' + transformParameterFile;
+    cmd = TransformixBinary + ' -threads 8 -in ' + imgname + ' -out ' + resultdirname + ' -tp ' + transformParameterFile;
     
     res = os.system(cmd);
     
@@ -588,7 +588,7 @@ def deformationField(sink = [], transformParameterFile = None, transformDirector
     setPathTransformParameterFiles(transformparameterdir);
    
     #transformix -in inputImage.ext -out outputDirectory -tp TransformParameters.txt
-    cmd = TransformixBinary + '-threads 8 -def all -out ' + resultdirname + ' -tp ' + transformParameterFile;
+    cmd = TransformixBinary + ' -threads 8 -def all -out ' + resultdirname + ' -tp ' + transformParameterFile;
     
     res = os.system(cmd);
     
@@ -741,7 +741,7 @@ def transformPoints(source, sink = None, transformParameterFile = None, transfor
     setPathTransformParameterFiles(transformparameterdir);
     
     #run transformix   
-    cmd = TransformixBinary + '-threads 8 -def ' + txtfile + ' -out ' + outdirname + ' -tp ' + transformparameterfile;
+    cmd = TransformixBinary + ' -threads 8 -def ' + txtfile + ' -out ' + outdirname + ' -tp ' + transformparameterfile;
     res = os.system(cmd);
     
     if res != 0:

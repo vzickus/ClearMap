@@ -78,13 +78,13 @@ intensities = io.readPoints(FilteredCellsFile[1])
 #Without weigths:
 vox = voxelize(points, AtlasFile, **voxelizeParameter);
 if not isinstance(vox, basestring):
-  io.writeData(os.path.join(BaseDirectory, 'cells_heatmap.tif'), vox.astype('int32'));
+  io.writeData(os.path.join(BaseDirectory, 'cells_heatmap_aligned.tif'), vox.astype('int32'));
 
 #With weigths from the intensity file (here raw intensity):
 voxelizeParameter["weights"] = intensities[:,0].astype(float);
 vox = voxelize(points, AtlasFile, **voxelizeParameter);
 if not isinstance(vox, basestring):
-  io.writeData(os.path.join(BaseDirectory, 'cells_heatmap_weighted.tif'), vox.astype('int32'));
+  io.writeData(os.path.join(BaseDirectory, 'cells_heatmap_weighted_aligned.tif'), vox.astype('int32'));
 
 
 

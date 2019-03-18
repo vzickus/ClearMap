@@ -26,7 +26,7 @@ Notes:
 """
 
 #path to eastix installation
-ElastixPath = '/usr/local/elastix';
+ElastixPath = '/usr';
 """str: Absolue path to the elastix installation
 
 Notes:

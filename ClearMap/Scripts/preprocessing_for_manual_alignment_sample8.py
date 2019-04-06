@@ -4,8 +4,10 @@ Pre-processing before the manual alignment procedure
 """
 
 #load the parameters:
-runfile('/home/user/ClearMap/docs/conf.py')
+runfile('/home/user/ClearMap/docs/conf.py') #This seems to be needed if ClearMap isn't in the Python modules folder 
 import ClearMap
+#load the parameters:
+execfile('/home/user/ClearMap/ClearMap/Scripts/name_of_sample/parameter_file.py')
 
 ######################### Import modules
 
@@ -23,97 +25,6 @@ from ClearMap.Analysis.Voxelization import voxelize
 from ClearMap.Analysis.Statistics import thresholdPoints
 from ClearMap.Utils.ParameterTools import joinParameter
 from ClearMap.Analysis.Label import labelToName
-
-
-######################### Data parameters
-
-#Directory to save all the results, usually containing the data for one sample
-BaseDirectory = '/media/user/a8fece16-8488-4abe-8878-80df6b8a233e/Sample_5/';
-
-#Data File and Reference channel File, usually as a sequence of files from the microscope
-#Use \d{4} for 4 digits in the sequence for instance. As an example, if you have cfos-Z0001.ome.tif :
-#os.path.join() is used to join the BaseDirectory path and the data paths:
-# TODO Maren: 
-cFosFile = os.path.join(BaseDirectory, 'Source/Red_Sample_5_BackgroundReduced/12-38-42_PV-TdTom 62479 Het red _UltraII_C00_xyz-Table Z\d{4}.ome.tif');
-AutofluoFile = os.path.join(BaseDirectory, 'Source/180913_PV-TdTom 62479 Het green _11-47-48/11-47-48_PV-TdTom 62479 Het _UltraII_C\d{4}.ome.tif');
-
-#Specify the range for the cell detection. This doesn't affect the resampling and registration operations
-cFosFileRange = {'x' : all, 'y' : all, 'z' : (0,1500)};
-
-#Resolution of the Raw Data (in um / pixel)
-OriginalResolution = (3.25, 3.25, 3);
-
-#Orientation: 1,2,3 means the same orientation as the reference and atlas files.
-#Flip axis with - sign (eg. (-1,2,3) flips x). 3D Rotate by swapping numbers. (eg. (2,1,3) swaps x and y)
-FinalOrientation = (1,2,3);
-
-#Resolution of the Atlas (in um/ pixel)
-AtlasResolution = (25, 25, 25);
-
-#Path to registration parameters and atlases
-PathReg        = BaseDirectory;
-AtlasFile      = os.path.join(PathReg, 'template_25.tif');
-AnnotationFile = os.path.join(PathReg, 'annotation_25_full.nrrd');
-
-############################ Config parameters
-
-#Processes to use for Resampling (usually twice the number of physical processors)
-ResamplingParameter = {
-    "processes": 8 
-};
-
-
-#Stack Processing Parameter for cell detection
-StackProcessingParameter = {
-    #max number of parallel processes. Be careful of the memory footprint of each process!
-    "processes" : 3,
-   
-    #chunk sizes: number of planes processed at once
-    #Default: 100,50,32
-    "chunkSizeMax" : 25,
-    "chunkSizeMin" : 13,
-    "chunkOverlap" : 6,
-
-    #optimize chunk size and number to number of processes to limit the number of cycles
-    "chunkOptimization" : True,
-    
-    #increase chunk size for optimization (True, False or all = automatic)
-    "chunkOptimizationSize" : all,
-   
-    "processMethod" : "parallel"
-   };
-
-
-######################## Run Parameters, usually you don't need to change those
-
-
-### Resample Fluorescent and CFos images
-# Autofluorescent cFos resampling for aquisition correction
-
-ResolutionAffineCFosAutoFluo =  (16, 16, 16);
-
-CorrectionResamplingParameterCfos = ResamplingParameter.copy();
-
-CorrectionResamplingParameterCfos["source"] = cFosFile;
-CorrectionResamplingParameterCfos["sink"]   = os.path.join(BaseDirectory, 'cfos_resampled.tif');
-    
-CorrectionResamplingParameterCfos["resolutionSource"] = OriginalResolution;
-CorrectionResamplingParameterCfos["resolutionSink"]   = ResolutionAffineCFosAutoFluo;
-
-CorrectionResamplingParameterCfos["orientation"] = FinalOrientation;
-   
-   
-   
-#Files for Auto-fluorescence for acquisition movements correction
-CorrectionResamplingParameterAutoFluo = CorrectionResamplingParameterCfos.copy();
-CorrectionResamplingParameterAutoFluo["source"] = AutofluoFile;
-CorrectionResamplingParameterAutoFluo["sink"]   = os.path.join(BaseDirectory, 'autofluo_for_cfos_resampled.tif');
-   
-#Files for Auto-fluorescence (Atlas Registration)
-RegistrationResamplingParameter = CorrectionResamplingParameterAutoFluo.copy();
-RegistrationResamplingParameter["sink"]            =  os.path.join(BaseDirectory, 'autofluo_resampled.tif');
-RegistrationResamplingParameter["resolutionSink"]  = AtlasResolution;
-   
 
 #resampling operations:
 #######################

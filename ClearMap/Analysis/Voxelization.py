@@ -95,7 +95,6 @@ def voxelizePixel(points,  dataSize = None, weights = None):
 
 def test():
     """Test voxelization module"""
-
     import ClearMap.Analysis.Voxelization as self
     reload(self)
 
@@ -113,7 +112,7 @@ def test():
     Plot.plotTiling(vi)
 
     #use voxelize
-    vi = self.voxelize(points, dataSize = (20,20,20), average = (5,5,5));
+    vi = self.voxelize(points, dataSize = (20,20,20), size = (5,5,5));
 
     Plot.plotTiling(vi)
 
@@ -123,12 +122,11 @@ def test():
     weights = numpy.random.rand(10);
 
     #use voxelize
-    vi = self.voxelize(points, dataSize = (20,20,20), average = (5,5,5));
-    viw =  self.voxelize(points, dataSize = (20,20,20), average = (5,5,5), weights = weights);
+    vi = self.voxelize(points, dataSize = (20,20,20), size = (5,5,5));
+    viw =  self.voxelize(points, dataSize = (20,20,20), size = (5,5,5), weights = weights);
 
     Plot.plotTiling(vi)
     Plot.plotTiling(viw)
-
 
 if __name__ == "__main__":
     test();

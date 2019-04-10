@@ -486,7 +486,7 @@ def test():
     basedir = '/home/vzickus/repos/ClearMap-Debug/ClearMap/ClearMap'
     import ClearMap.Settings as settings
     pf = os.path.join(basedir, 'Test/Synthetic/cells_transformed_to_reference.csv');
-
+    pf = numpy.loadtxt(pf, delimiter = ',')
     pg = (pf,pf);
 
     pc = self.countPointsGroupInRegions(pg);

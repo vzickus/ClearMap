@@ -54,7 +54,6 @@ from ClearMap.ImageProcessing.BackgroundRemoval import removeBackground
 from ClearMap.ImageProcessing.Filter.DoGFilter import filterDoG
 from ClearMap.ImageProcessing.MaximaDetection import findExtendedMaxima, findPixelCoordinates, findIntensity, findCenterOfMaxima
 from ClearMap.ImageProcessing.CellSizeDetection import detectCellShape, findCellSize, findCellIntensity
-from ClearMap.ImageProcessing.CellDetection import detectCells
 
 from ClearMap.Utils.Timer import Timer
 from ClearMap.Utils.ParameterTools import getParameter
@@ -204,24 +203,20 @@ def test():
     reload(self)
     import ClearMap.IO as io
     import ClearMap.Settings as settings
-
+    from ClearMap.ImageProcessing.CellDetection import detectCells
     basedir = settings.ClearMapPath;
     #Default tifs do not load for some reason (tifffile is not happy) but
     #simply resaving them seems to do the trick.
     fn = os.path.join(basedir, 'Test/Data/synthetic2/test_iDISCO_\d{3}.tif');
     #fn = os.path.join(basedir, 'Test/Data/OME/16-17-27_0_8X-s3-20HF_UltraII_C00_xyz-Table Z\d{4}.ome.tif');
-
     img = io.readData(fn);
     #img = dataset[0:500,0:500,1000:1008];
     #img = dataset[600:1000,1600:1800,800:830];
     #img = dataset[500:1500,500:1500,800:809];
     img = img.astype('int16');
-
     #m = sys.modules['iDISCO.ImageProcessing.SpotDetection']
     #c = self.detectCells(img);
-
-    c = self.detectSpots(img, dogSize = None, cellShapeThreshold = 1);
-
+    c = self.detectSpots(img, hMax = 10, threshold = 100, verbose = True);
     print 'done, found %d cells !' % c[0].shape[0]
 
 

@@ -465,6 +465,7 @@ def test():
     import ClearMap.Analysis.Statistics as self
     reload(self)
     import numpy, os
+    import matplotlib.pyplot as plt
     #x = stats.norm.rvs(loc=5,scale=1,size=1500)
     #y = stats.norm.rvs(loc=-5,scale=1,size=1500)
     s = numpy.ones((5,4,20));
@@ -479,11 +480,12 @@ def test():
 
     pvalscol = self.colorPValues(pvals, psign, positive = [255,0,0], negative = [0,255,0])
 
-    import ClearMap.Visualization.Plot as plt
-    plt.plotTiling(pvalscol)
+    import ClearMap.Visualization.Plot as plt_cm
+    plot = plt_cm.plotTiling(pvalscol)
+    plt.show()
 
     # test points
-    basedir = '/home/vzickus/repos/ClearMap-Debug/ClearMap/ClearMap'
+    basedir = '/home/vzickus/repos/ClearMap-Debug/ClearMap'
     import ClearMap.Settings as settings
     pf = os.path.join(basedir, 'Test/Synthetic/cells_transformed_to_reference.csv');
     pf = numpy.loadtxt(pf, delimiter = ',')

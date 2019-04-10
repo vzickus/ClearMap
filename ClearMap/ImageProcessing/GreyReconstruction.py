@@ -1,12 +1,12 @@
 """
 Grey reconstruction module
 
-This morphological reconstruction routine was adapted from 
+This morphological reconstruction routine was adapted from
 `CellProfiler <http://www.cellprofiler.org>`_.
 
 Author
 """"""
-    Original author: Lee Kamentsky 
+    Original author: Lee Kamentsky
     Copyright (c) 2003-2009 Massachusetts Institute of Technology
     Copyright (c) 2009-2011 Broad Institute
 
@@ -38,8 +38,8 @@ def reconstruct(seed, mask, method = 'dilation', selem = None, offset = None):
     Reconstruction uses a seed image, which specifies the values
     to dilate and a mask image that gives the maximum allowed dilated value at
     each pixel.
-    
-    The algorithm is taken from [1]_. Applications for greyscale 
+
+    The algorithm is taken from [1]_. Applications for greyscale
     reconstruction are discussed in [2]_ and [3]_.
 
     Arguments:
@@ -51,12 +51,12 @@ def reconstruct(seed, mask, method = 'dilation', selem = None, offset = None):
 
     Returns:
         array: result of morphological reconstruction.
-        
-    Note: 
+
+    Note:
         Operates on 2d images.
-    
+
     Reference:
-    
+
     .. [1] Robinson, "Efficient morphological reconstruction: a downhill
            filter", Pattern Recognition Letters 25 (2004) 1759-1767.
     .. [2] Vincent, L., "Morphological Grayscale Reconstruction in Image
@@ -65,7 +65,7 @@ def reconstruct(seed, mask, method = 'dilation', selem = None, offset = None):
     .. [3] Soille, P., "Morphological Image Analysis: Principles and
            Applications", Chapter 6, 2nd edition (2003), ISBN 3540429883.
     """
-    
+
     assert tuple(seed.shape) == tuple(mask.shape)
     if method == 'dilation' and np.any(seed > mask):
         raise ValueError("Intensity of seed image must be less than that "
@@ -87,9 +87,9 @@ def reconstruct(seed, mask, method = 'dilation', selem = None, offset = None):
         if not all([d % 2 == 1 for d in selem.shape]):
             ValueError("Footprint dimensions must all be odd")
         offset = np.array([d // 2 for d in selem.shape])
-    
+
     # Cross out the center of the selem
-    selem[[slice(d, d + 1) for d in offset]] = False
+    selem[ tuple( [slice(d, d + 1) for d in offset] ) ] = False
 
     # Make padding for edges of reconstructed image so we can ignore boundaries
     padding = (np.array(selem.shape) / 2).astype(int)
@@ -104,8 +104,8 @@ def reconstruct(seed, mask, method = 'dilation', selem = None, offset = None):
     elif method == 'erosion':
         pad_value = np.max(seed)
     images = np.ones(dims, dtype = seed.dtype) * pad_value
-    images[[0] + inside_slices] = seed
-    images[[1] + inside_slices] = mask
+    images[ tuple( [0] + inside_slices ) ] = seed
+    images[ tuple ( [1] + inside_slices ) ] = mask
 
     # Create a list of strides across the array to get the neighbors within
     # a flattened array
@@ -143,17 +143,17 @@ def reconstruct(seed, mask, method = 'dilation', selem = None, offset = None):
     # Reshape reconstructed image to original image shape and remove padding.
     rec_img = value_map[value_rank[:image_stride]]
     rec_img.shape = np.array(seed.shape) + 2 * padding
-    
-    return rec_img[inside_slices]
+
+    return rec_img[ tuple (inside_slices) ]
 
 
 
 def greyReconstruction(img, mask, greyReconstructionParameter = None, method = None, size = 3, save = None, verbose = False,
                        subStack = None, out = sys.stdout, **parameter):
-    """Calculates the grey reconstruction of the image 
-    
+    """Calculates the grey reconstruction of the image
+
     Reconstruction is done z-slice by z-slice.
-    
+
     Arguments:
         img (array): image data
         removeBackGroundParameter (dict):
@@ -163,37 +163,37 @@ def greyReconstruction(img, mask, greyReconstructionParameter = None, method = N
             *method*  (tuple or None)      'dilation' or 'erosion', if None return original image
             *size*    (int or tuple)       size of structuring element
             *save*    (str or None)        file name to save result of this operation
-                                           if None dont save to file 
-            *verbose* (bool or int)        print / plot information about this step 
+                                           if None dont save to file
+            *verbose* (bool or int)        print / plot information about this step
             ========= ==================== ===========================================================
-        subStack (dict or None): sub-stack information 
-        verbose (bool): print progress info 
+        subStack (dict or None): sub-stack information
+        verbose (bool): print progress info
         out (object): object to write progress info to
-        
+
     Returns:
         array: grey reconstructed image
     """
-    
+
     method = getParameter(greyReconstructionParameter, "method", method);
     size   = getParameter(greyReconstructionParameter, "size", size);
-    save   = getParameter(greyReconstructionParameter, "save", save);    
-    verbose= getParameter(greyReconstructionParameter, "verbose", verbose);   
-    
+    save   = getParameter(greyReconstructionParameter, "save", save);
+    verbose= getParameter(greyReconstructionParameter, "verbose", verbose);
+
     if verbose:
         writeParameter(out = out, head = 'Grey reconstruction:', method = method, size = size, save = save);
-    
+
     if method is None:
         return img;
-    
+
     timer = Timer();
-    
+
     # background subtraction in each slice
     se = structureElement('Disk', size).astype('uint8');
     for z in range(img.shape[2]):
          #img[:,:,z] = img[:,:,z] - grey_opening(img[:,:,z], structure = structureElement('Disk', (30,30)));
          #img[:,:,z] = img[:,:,z] - morph.grey_opening(img[:,:,z], structure = self.structureELement('Disk', (150,150)));
          img[:,:,z] = img[:,:,z] - reconstruct(img[:,:,z], method = method, selem = se)
-    
+
     if not save is None:
         writeSubStack(save, img, subStack = subStack)
 
@@ -202,6 +202,5 @@ def greyReconstruction(img, mask, greyReconstructionParameter = None, method = N
 
     if verbose:
         out.write(timer.elapsedTime(head = 'Grey reconstruction:') + '\n');
-    
-    return img 
 
+    return img
